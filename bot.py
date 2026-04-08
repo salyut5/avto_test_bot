@@ -1297,6 +1297,15 @@ async def finish_mixed_test(message, state: FSMContext):
         reply_markup=kb
     )
 
+@dp.message_handler(lambda m: m.text == "🏠 Asosiy menyuga qaytish", state="*")
+async def back_to_main(message: types.Message, state: FSMContext):
+    try:
+        await state.finish()
+    except:
+        pass
+
+    await message.answer("🏠 Asosiy menyu", reply_markup=main_menu())
+
 # ================= ASOSIY MENYUGA QAYTISH =================
 
 # ================= RUN BERVOMIZ SHOTTAN =================
