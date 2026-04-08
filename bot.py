@@ -2,14 +2,15 @@ import logging
 import sqlite3
 import random
 import asyncio
-from datetime import datetime, timedelta
 import os
-
+import traceback
+from datetime import datetime, timedelta
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import (
     ReplyKeyboardMarkup, KeyboardButton,
     InlineKeyboardMarkup, InlineKeyboardButton
 )
+from aiogram.utils import executor
 from aiogram.utils.executor import start_webhook
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -19,18 +20,19 @@ from dotenv import load_dotenv
 
 # ================= LOAD ENV =================
 load_dotenv()  # .env faylni o'qiydi
-
 API_TOKEN = os.getenv("API_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
-WEBHOOK_HOST = os.getenv("WEBHOOK_HOST")
-WEBHOOK_PATH = os.getenv("WEBHOOK_PATH")
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+# ==============================    WEBHOOK UCHUN =================
+# WEBHOOK_HOST = os.getenv("WEBHOOK_HOST")
+# WEBHOOK_PATH = os.getenv("WEBHOOK_PATH")
+# WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
-WEBAPP_HOST = os.getenv("WEBAPP_HOST", "0.0.0.0")
-WEBAPP_PORT = int(os.getenv("PORT", 5000))
+# WEBAPP_HOST = os.getenv("WEBAPP_HOST", "0.0.0.0")
+# WEBAPP_PORT = int(os.getenv("PORT", 5000))
 
 # ================= BOT & DISPATCHER =================
+logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
@@ -1303,21 +1305,72 @@ async def back_to_main(message: types.Message, state: FSMContext):
 
 
 # ================= RUN BERVOMIZ SHOTTAN =================
-async def on_startup(dp):
-    await bot.set_webhook(WEBHOOK_URL)
-    logging.info(f"Webhook set to {WEBHOOK_URL}")
 
-async def on_shutdown(dp):
-    logging.warning("Shutting down..")
-    await bot.delete_webhook()
-    logging.warning("Webhook deleted")
+#==============================    WEBHOOK UCHUN =================
+# async def on_startup(dp):
+#     await bot.set_webhook(WEBHOOK_URL)
+#     logging.info(f"Webhook set to {WEBHOOK_URL}")
+
+# async def on_shutdown(dp):
+#     logging.warning("Shutting down..")
+#     await bot.delete_webhook()
+#     logging.warning("Webhook deleted")
+
+# if __name__ == "__main__":
+#     start_webhook(
+#         dispatcher=dp,
+#         webhook_path=WEBHOOK_PATH,
+#         on_startup=on_startup,
+#         on_shutdown=on_shutdown,
+#         host=WEBAPP_HOST,
+#         port=WEBAPP_PORT,
+#     )
+
+#==============================    POLLING UCHUN =================
+#============ XATOLIK BO'LSA QAYTA ISHGA TUSHIRISH ==================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+async def main():
+
+    while True:
+        try:
+            logging.info("Bot polling rejimida ishga tushmoqda...")
+
+            await dp.start_polling(
+                bot,
+                handle_signals=False
+            )
+
+        except asyncio.CancelledError:
+            logging.warning(
+                "Polling bekor qilindi. 5 soniyadan keyin qayta uriniladi..."
+            )
+            await asyncio.sleep(5)
+
+        except Exception as e:
+            logging.error(
+                f"Pollingda xatolik yuz berdi: {e}"
+            )
+            traceback.print_exc()
+
+            logging.info(
+                "5 soniyadan keyin qayta ishga tushiriladi..."
+            )
+
+            await asyncio.sleep(5)
+
+
+# ================== RUN ==================
 
 if __name__ == "__main__":
-    start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        host=WEBAPP_HOST,
-        port=WEBAPP_PORT,
-    )
+    try:
+        asyncio.run(main())
+
+    except KeyboardInterrupt:
+        print("Bot qo‘lda to‘xtatildi.")
+
+    except Exception as e:
+        print("Kutilmagan xatolik:", e)
