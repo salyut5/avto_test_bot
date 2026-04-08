@@ -1298,15 +1298,10 @@ async def finish_mixed_test(message, state: FSMContext):
     )
 
 # ================= ASOSIY MENYUGA QAYTISH =================
-@dp.message_handler(lambda m: m.text == "🏠 Asosiy menyuga qaytish", state="*")
-async def back_to_main(message: types.Message, state: FSMContext):
-    await state.finish()
-    await message.answer("🏠 Asosiy menyu", reply_markup=main_menu())
-
 
 # ================= RUN BERVOMIZ SHOTTAN =================
 
-#==============================    WEBHOOK UCHUN =================
+# ============================== WEBHOOK UCHUN =================
 # async def on_startup(dp):
 #     await bot.set_webhook(WEBHOOK_URL)
 #     logging.info(f"Webhook set to {WEBHOOK_URL}")
@@ -1326,51 +1321,19 @@ async def back_to_main(message: types.Message, state: FSMContext):
 #         port=WEBAPP_PORT,
 #     )
 
-#==============================    POLLING UCHUN =================
-#============ XATOLIK BO'LSA QAYTA ISHGA TUSHIRISH ==================
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
-
-async def main():
+# ============================== POLLING UCHUN =================
+if __name__ == "__main__":
+    import time
 
     while True:
         try:
             logging.info("Bot polling rejimida ishga tushmoqda...")
-
-            await dp.start_polling(
-                bot,
-                handle_signals=False
-            )
-
-        except asyncio.CancelledError:
-            logging.warning(
-                "Polling bekor qilindi. 5 soniyadan keyin qayta uriniladi..."
-            )
-            await asyncio.sleep(5)
-
+            executor.start_polling(dp, skip_updates=True)
+        except KeyboardInterrupt:
+            print("Bot qo‘lda to‘xtatildi.")
+            break
         except Exception as e:
-            logging.error(
-                f"Pollingda xatolik yuz berdi: {e}"
-            )
+            logging.error(f"Pollingda xatolik yuz berdi: {e}")
             traceback.print_exc()
-
-            logging.info(
-                "5 soniyadan keyin qayta ishga tushiriladi..."
-            )
-
-            await asyncio.sleep(5)
-
-
-# ================== RUN ==================
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-
-    except KeyboardInterrupt:
-        print("Bot qo‘lda to‘xtatildi.")
-
-    except Exception as e:
-        print("Kutilmagan xatolik:", e)
+            print("5 soniyadan keyin qayta ishga tushiriladi...")
+            time.sleep(5)
