@@ -1278,7 +1278,7 @@ async def finish_mixed_test(message, state: FSMContext):
     # ❗ nolga bo‘linishni oldini olamiz
     percent = int((score / total) * 100) if total > 0 else 0
 
-    # 💾 bazaga yozish
+    # 💾 natijaga bazaga yozish
     cursor.execute(
         "INSERT INTO results (user_id, score, total, date) VALUES (?, ?, ?, ?)",
         (user_id, score, total, datetime.now().strftime("%Y-%m-%d %H:%M"))
