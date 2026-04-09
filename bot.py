@@ -1297,6 +1297,7 @@ async def finish_mixed_test(message, state: FSMContext):
         reply_markup=kb
     )
 
+# ================= ASOSIY MENYUGA QAYTISH =================
 @dp.message_handler(lambda m: m.text == "🏠 Asosiy menyuga qaytish", state="*")
 async def back_to_main(message: types.Message, state: FSMContext):
     try:
@@ -1306,7 +1307,6 @@ async def back_to_main(message: types.Message, state: FSMContext):
 
     await message.answer("🏠 Asosiy menyu", reply_markup=main_menu())
 
-# ================= ASOSIY MENYUGA QAYTISH =================
 
 # ================= RUN BERVOMIZ SHOTTAN =================
 
